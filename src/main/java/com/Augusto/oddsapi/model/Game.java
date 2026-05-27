@@ -6,6 +6,7 @@ public class Game {
 
     private String home_team;
     private String away_team;
+    private String sport_key;
 
     private List<Bookmaker> bookmakers;
 
@@ -23,6 +24,14 @@ public class Game {
 
     public void setAway_team(String away_team) {
         this.away_team = away_team;
+    }
+
+    public String getSport_key() {
+        return sport_key;
+    }
+
+    public void setSport_key(String sport_key) {
+        this.sport_key = sport_key;
     }
 
     public List<Bookmaker> getBookmakers() {
