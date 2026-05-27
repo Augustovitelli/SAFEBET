@@ -19,6 +19,8 @@ import com.Augusto.oddsapi.model.Market;
 import com.Augusto.oddsapi.model.Outcome;
 import com.Augusto.oddsapi.repository.GameRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class OddsService {
 
@@ -36,7 +38,7 @@ public class OddsService {
 
         this.gameRepository = gameRepository;
     }
-
+    @Transactional
     public List<Game> getOdds() {
 
         List<Game> games = webClient.get()
@@ -55,7 +57,7 @@ public class OddsService {
         return games;
     }
 
-    private void salvarGamesNoBanco(List<Game> games) {
+    public void salvarGamesNoBanco(List<Game> games) {
 
         List<GameEntity> entidades = new ArrayList<>();
 
@@ -78,6 +80,7 @@ public class OddsService {
                 
                 bookmakerEntity.setTitle(bookmaker.getTitle());
                 bookmakerEntity.setLastUpdate(LocalDateTime.now());
+                bookmakerEntity.setGame(gameEntity);
 
                 List<MarketEntity> marketEntities = new ArrayList<>();
 
@@ -85,7 +88,7 @@ public class OddsService {
 
                     MarketEntity marketEntity = new MarketEntity();
 
-                    
+                    marketEntity.setBookmaker(bookmakerEntity);
 
                     List<OutcomeEntity> outcomeEntities = new ArrayList<>();
 
@@ -97,6 +100,7 @@ public class OddsService {
                         outcomeEntity.setPrice(outcome.getPrice());
 
                         outcomeEntities.add(outcomeEntity);
+                        outcomeEntity.setMarket(marketEntity);
                     }
 
                     marketEntity.setOutcomes(outcomeEntities);
