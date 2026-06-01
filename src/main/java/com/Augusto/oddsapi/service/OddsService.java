@@ -31,20 +31,31 @@ public class OddsService {
     private final GameRepository gameRepository;
 
     public OddsService(WebClient.Builder builder, GameRepository gameRepository) {
-
         this.webClient = builder
                 .baseUrl("https://api.the-odds-api.com")
                 .build();
-
         this.gameRepository = gameRepository;
     }
-    //tem que ver se o bd ta duplicando os jogos 
+
+    // Busca do banco (endpoint /odds)
     @Transactional
     public List<Game> getOdds() {
+        return buscarDoBanco();
+    }
 
-        List<Game> games = webClient.get()
+    // Chama API, apaga tudo e salva novos dados (endpoint /odds/atualizar)
+    @Transactional
+    public List<Game> atualizarDaApi() {
+        List<Game> games = chamarApi();
+        gameRepository.deleteAll();
+        salvarGamesNoBanco(games);
+        return games;
+    }
+
+    private List<Game> chamarApi() {
+        return webClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/v4/sports/soccer_brazil_campeonato/odds")
+                        .path("/v4/sports/soccer_fifa_world_cup/odds")
                         .queryParam("apiKey", apiKey)
                         .queryParam("regions", "us")
                         .queryParam("markets", "h2h")
@@ -52,70 +63,89 @@ public class OddsService {
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<Game>>() {})
                 .block();
+    }
 
-        salvarGamesNoBanco(games);
+    private List<Game> buscarDoBanco() {
+        List<GameEntity> entities = gameRepository.findAll();
+        List<Game> games = new ArrayList<>();
+
+        for (GameEntity gameEntity : entities) {
+            Game game = new Game();
+            game.setHome_team(gameEntity.getHomeTeam());
+            game.setAway_team(gameEntity.getAwayTeam());
+            game.setSport_key(gameEntity.getSportKey());
+
+            List<Bookmaker> bookmakers = new ArrayList<>();
+            for (BookmakerEntity bookmakerEntity : gameEntity.getBookmakers()) {
+                Bookmaker bookmaker = new Bookmaker();
+                bookmaker.setTitle(bookmakerEntity.getTitle());
+
+                List<Market> markets = new ArrayList<>();
+                for (MarketEntity marketEntity : bookmakerEntity.getMarkets()) {
+                    Market market = new Market();
+
+                    List<Outcome> outcomes = new ArrayList<>();
+                    for (OutcomeEntity outcomeEntity : marketEntity.getOutcomes()) {
+                        Outcome outcome = new Outcome();
+                        outcome.setName(outcomeEntity.getName());
+                        outcome.setPrice(outcomeEntity.getPrice());
+                        outcomes.add(outcome);
+                    }
+
+                    market.setOutcomes(outcomes);
+                    markets.add(market);
+                }
+
+                bookmaker.setMarkets(markets);
+                bookmakers.add(bookmaker);
+            }
+
+            game.setBookmakers(bookmakers);
+            games.add(game);
+        }
 
         return games;
     }
 
     public void salvarGamesNoBanco(List<Game> games) {
-
         List<GameEntity> entidades = new ArrayList<>();
 
         for (Game game : games) {
-
             GameEntity gameEntity = new GameEntity();
-
             gameEntity.setHomeTeam(game.getHome_team());
             gameEntity.setAwayTeam(game.getAway_team());
             gameEntity.setSportKey(game.getSport_key());
 
-            
-
             List<BookmakerEntity> bookmakerEntities = new ArrayList<>();
-
             for (Bookmaker bookmaker : game.getBookmakers()) {
-
                 BookmakerEntity bookmakerEntity = new BookmakerEntity();
-
-                
                 bookmakerEntity.setTitle(bookmaker.getTitle());
                 bookmakerEntity.setLastUpdate(LocalDateTime.now());
                 bookmakerEntity.setGame(gameEntity);
 
                 List<MarketEntity> marketEntities = new ArrayList<>();
-
                 for (Market market : bookmaker.getMarkets()) {
-
                     MarketEntity marketEntity = new MarketEntity();
-
                     marketEntity.setBookmaker(bookmakerEntity);
 
                     List<OutcomeEntity> outcomeEntities = new ArrayList<>();
-
                     for (Outcome outcome : market.getOutcomes()) {
-
                         OutcomeEntity outcomeEntity = new OutcomeEntity();
-
                         outcomeEntity.setName(outcome.getName());
                         outcomeEntity.setPrice(outcome.getPrice());
-
-                        outcomeEntities.add(outcomeEntity);
                         outcomeEntity.setMarket(marketEntity);
+                        outcomeEntities.add(outcomeEntity);
                     }
 
                     marketEntity.setOutcomes(outcomeEntities);
-
                     marketEntities.add(marketEntity);
                 }
 
                 bookmakerEntity.setMarkets(marketEntities);
-
                 bookmakerEntities.add(bookmakerEntity);
             }
 
             gameEntity.setBookmakers(bookmakerEntities);
-
             entidades.add(gameEntity);
         }
 

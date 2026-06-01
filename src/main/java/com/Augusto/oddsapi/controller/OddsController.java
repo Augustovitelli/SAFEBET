@@ -20,30 +20,34 @@ public class OddsController {
 
     @GetMapping("/odds")
     public String getOdds() {
+        return formatarResposta(oddsService.getOdds()); // busca do banco
+    }
 
-        List<Game> games = oddsService.getOdds();
+    @GetMapping("/odds/atualizar")
+    public String atualizarOdds() {
+        return formatarResposta(oddsService.atualizarDaApi()); // chama API e sobrescreve
+    }
 
+    private String formatarResposta(List<Game> games) {
         StringBuilder resposta = new StringBuilder();
 
         for (Game game : games) {
-
             resposta.append("Jogo: ")
                     .append(game.getHome_team())
                     .append(" x ")
                     .append(game.getAway_team())
                     .append("\n");
-            
-            for (var bookmaker : game.getBookmakers()) {
 
+            for (var bookmaker : game.getBookmakers()) {
                 resposta.append("   Casa: ")
                         .append(bookmaker.getTitle())
                         .append("\n");
             }
+
             var bookmaker = game.getBookmakers().get(0);
             List<Outcome> outcomes = bookmaker.getMarkets().get(0).getOutcomes();
 
             for (Outcome outcome : outcomes) {
-
                 resposta.append(outcome.getName())
                         .append(": ")
                         .append(outcome.getPrice())
