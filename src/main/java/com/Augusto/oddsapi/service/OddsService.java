@@ -38,6 +38,7 @@ public class OddsService {
 
         this.gameRepository = gameRepository;
     }
+    //tem que ver se o bd ta duplicando os jogos 
     @Transactional
     public List<Game> getOdds() {
 

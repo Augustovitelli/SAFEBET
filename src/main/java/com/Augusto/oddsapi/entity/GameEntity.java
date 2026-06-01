@@ -7,7 +7,7 @@ import java.util.*;
 public class GameEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //id do game vai vim da api!Mudar isso dps
     private Long id;
 
     private String homeTeam;
