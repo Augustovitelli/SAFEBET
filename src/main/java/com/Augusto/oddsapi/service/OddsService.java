@@ -9,6 +9,10 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.Augusto.oddsapi.dto.BookmakerResponseDTO;
+import com.Augusto.oddsapi.dto.GameResponseDTO;
+import com.Augusto.oddsapi.dto.MarketResponseDTO;
+import com.Augusto.oddsapi.dto.OutcomeResponseDTO;
 import com.Augusto.oddsapi.entity.BookmakerEntity;
 import com.Augusto.oddsapi.entity.GameEntity;
 import com.Augusto.oddsapi.entity.MarketEntity;
@@ -39,17 +43,17 @@ public class OddsService {
 
     // Busca do banco (endpoint /odds)
     @Transactional
-    public List<Game> getOdds() {
+    public List<GameResponseDTO> getOdds() {
         return buscarDoBanco();
     }
 
     // Chama API, apaga tudo e salva novos dados (endpoint /odds/atualizar)
     @Transactional
-    public List<Game> atualizarDaApi() {
+    public List<GameResponseDTO> atualizarDaApi() {
         List<Game> games = chamarApi();
         gameRepository.deleteAll();
         salvarGamesNoBanco(games);
-        return games;
+        return buscarDoBanco();
     }
 
     private List<Game> chamarApi() {
@@ -65,43 +69,43 @@ public class OddsService {
                 .block();
     }
 
-    private List<Game> buscarDoBanco() {
+    private List<GameResponseDTO> buscarDoBanco() {
         List<GameEntity> entities = gameRepository.findAll();
-        List<Game> games = new ArrayList<>();
+        List<GameResponseDTO> games = new ArrayList<>();
 
         for (GameEntity gameEntity : entities) {
-            Game game = new Game();
-            game.setHome_team(gameEntity.getHomeTeam());
-            game.setAway_team(gameEntity.getAwayTeam());
-            game.setSport_key(gameEntity.getSportKey());
+            GameResponseDTO dto = new GameResponseDTO();
+            dto.setHome_team(gameEntity.getHomeTeam());
+            dto.setAway_team(gameEntity.getAwayTeam());
+            dto.setSport_key(gameEntity.getSportKey());
 
-            List<Bookmaker> bookmakers = new ArrayList<>();
+            List<BookmakerResponseDTO> bookmakers = new ArrayList<>();
             for (BookmakerEntity bookmakerEntity : gameEntity.getBookmakers()) {
-                Bookmaker bookmaker = new Bookmaker();
-                bookmaker.setTitle(bookmakerEntity.getTitle());
+                BookmakerResponseDTO bookmakerDTO = new BookmakerResponseDTO();
+                bookmakerDTO.setTitle(bookmakerEntity.getTitle());
 
-                List<Market> markets = new ArrayList<>();
+                List<MarketResponseDTO> markets = new ArrayList<>();
                 for (MarketEntity marketEntity : bookmakerEntity.getMarkets()) {
-                    Market market = new Market();
+                    MarketResponseDTO marketDTO = new MarketResponseDTO();
 
-                    List<Outcome> outcomes = new ArrayList<>();
+                    List<OutcomeResponseDTO> outcomes = new ArrayList<>();
                     for (OutcomeEntity outcomeEntity : marketEntity.getOutcomes()) {
-                        Outcome outcome = new Outcome();
-                        outcome.setName(outcomeEntity.getName());
-                        outcome.setPrice(outcomeEntity.getPrice());
-                        outcomes.add(outcome);
+                        OutcomeResponseDTO outcomeDTO = new OutcomeResponseDTO();
+                        outcomeDTO.setName(outcomeEntity.getName());
+                        outcomeDTO.setPrice(outcomeEntity.getPrice());
+                        outcomes.add(outcomeDTO);
                     }
 
-                    market.setOutcomes(outcomes);
-                    markets.add(market);
+                    marketDTO.setOutcomes(outcomes);
+                    markets.add(marketDTO);
                 }
 
-                bookmaker.setMarkets(markets);
-                bookmakers.add(bookmaker);
+                bookmakerDTO.setMarkets(markets);
+                bookmakers.add(bookmakerDTO);
             }
 
-            game.setBookmakers(bookmakers);
-            games.add(game);
+            dto.setBookmakers(bookmakers);
+            games.add(dto);
         }
 
         return games;
