@@ -78,6 +78,9 @@ public class OddsService {
             dto.setHome_team(gameEntity.getHomeTeam());
             dto.setAway_team(gameEntity.getAwayTeam());
             dto.setSport_key(gameEntity.getSportKey());
+            dto.setHomeTeamPrice(gameEntity.getHomeTeamPrice());
+            dto.setAwayTeamPrice(gameEntity.getAwayTeamPrice());
+            dto.setDrawPrice(gameEntity.getDrawPrice());
 
             List<BookmakerResponseDTO> bookmakers = new ArrayList<>();
             for (BookmakerEntity bookmakerEntity : gameEntity.getBookmakers()) {
@@ -113,8 +116,17 @@ public class OddsService {
 
     public void salvarGamesNoBanco(List<Game> games) {
         List<GameEntity> entidades = new ArrayList<>();
+        
 
         for (Game game : games) {
+
+            double homeTeamPrice = 0.0;
+            int countHome = 0;
+            double awayTeamPrice = 0.0;
+            int countAway = 0;
+            double drawPrice = 0.0;
+            int countDraw = 0;
+
             GameEntity gameEntity = new GameEntity();
             gameEntity.setHomeTeam(game.getHome_team());
             gameEntity.setAwayTeam(game.getAway_team());
@@ -139,15 +151,31 @@ public class OddsService {
                         outcomeEntity.setPrice(outcome.getPrice());
                         outcomeEntity.setMarket(marketEntity);
                         outcomeEntities.add(outcomeEntity);
+                        if (outcome.getName().equalsIgnoreCase(game.getHome_team())) {
+                            homeTeamPrice += outcome.getPrice();
+                            countHome++;
+                        } else if (outcome.getName().equalsIgnoreCase(game.getAway_team())) {
+                            awayTeamPrice += outcome.getPrice();
+                            countAway++;
+                        } else if (outcome.getName().equalsIgnoreCase("Draw")) {
+                            drawPrice += outcome.getPrice();
+                            countDraw++;
+                        }
                     }
 
                     marketEntity.setOutcomes(outcomeEntities);
                     marketEntities.add(marketEntity);
+                   
                 }
 
                 bookmakerEntity.setMarkets(marketEntities);
                 bookmakerEntities.add(bookmakerEntity);
             }
+
+
+            gameEntity.setHomeTeamPrice(countHome > 0 ? homeTeamPrice / countHome : 0.00);
+            gameEntity.setAwayTeamPrice(countAway > 0 ? awayTeamPrice / countAway : 0.00);
+            gameEntity.setDrawPrice(countDraw > 0 ? drawPrice / countDraw : 0.00);
 
             gameEntity.setBookmakers(bookmakerEntities);
             entidades.add(gameEntity);

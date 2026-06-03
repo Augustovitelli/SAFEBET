@@ -14,7 +14,12 @@ function App() {
       <h1>Odds da Copa do Mundo</h1>
       {games.map((game, i) => (
         <div key={i}>
-          <h2>{game.homeTeam} x {game.awayTeam}</h2>
+          <h2>{game.home_team} x {game.away_team}</h2>
+          <strong>Esporte:</strong> {game.sportKey} <br />
+          <strong>Preços:</strong>
+          <p>{game.home_team}: {game.homeTeamPrice.toFixed(2)}</p>
+          <p>{game.away_team}: {game.awayTeamPrice.toFixed(2)}</p>
+          <p>Empate: {game.drawPrice.toFixed(2)}</p>
           {game.bookmakers.map((bookmaker, j) => (
             <div key={j}>
               <strong>{bookmaker.title}</strong>

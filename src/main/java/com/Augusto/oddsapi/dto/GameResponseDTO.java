@@ -7,6 +7,9 @@ public class GameResponseDTO {
     private String home_team;
     private String away_team;
     private String sport_key;
+    private double homeTeamPrice;
+    private double awayTeamPrice;
+    private double drawPrice;
     private List<BookmakerResponseDTO> bookmakers;
 
 
@@ -33,5 +36,23 @@ public class GameResponseDTO {
     }
     public void setBookmakers(List<BookmakerResponseDTO> bookmakers) {
         this.bookmakers = bookmakers;
+    }
+    public double getHomeTeamPrice() {
+        return homeTeamPrice;
+    }
+    public void setHomeTeamPrice(double homeTeamPrice) {
+        this.homeTeamPrice = homeTeamPrice;
+    }
+    public double getAwayTeamPrice() {
+        return awayTeamPrice;
+    }
+    public void setAwayTeamPrice(double awayTeamPrice) {
+        this.awayTeamPrice = awayTeamPrice;
+    }
+    public double getDrawPrice() {
+        return drawPrice;
+    }
+    public void setDrawPrice(double drawPrice) {
+        this.drawPrice = drawPrice;
     }
 }
