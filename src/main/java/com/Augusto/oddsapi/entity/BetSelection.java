@@ -13,6 +13,9 @@ public class BetSelection {
 
     @ManyToOne
     @JoinColumn(name = "bet_id")
+
+    private long gameId;
+
     private BetEntity bet;
 
     private BigDecimal oddAtBetTime;

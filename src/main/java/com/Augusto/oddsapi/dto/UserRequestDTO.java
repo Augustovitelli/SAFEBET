@@ -1,5 +1,5 @@
 package com.Augusto.oddsapi.dto;
-import java.math.BigDecimal;
+
 
 public class UserRequestDTO {
     

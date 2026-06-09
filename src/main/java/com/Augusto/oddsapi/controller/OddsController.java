@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.Augusto.oddsapi.dto.GameResponseDTO;
-import com.Augusto.oddsapi.dto.OutcomeResponseDTO;
+
 import com.Augusto.oddsapi.service.OddsService;
 
 @RestController

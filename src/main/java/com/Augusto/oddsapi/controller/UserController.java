@@ -1,12 +1,11 @@
 package com.Augusto.oddsapi.controller;
 
-import java.math.BigDecimal;
-import java.util.List;
+
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.Augusto.oddsapi.dto.GameResponseDTO;
+
 import com.Augusto.oddsapi.dto.UserRequestDTO;
 import com.Augusto.oddsapi.service.UserService;
 import org.springframework.web.bind.annotation.RequestBody;
