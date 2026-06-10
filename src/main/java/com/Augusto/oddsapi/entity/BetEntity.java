@@ -27,7 +27,7 @@ public class BetEntity {
     
 
     @OneToMany(mappedBy = "bet", cascade = CascadeType.ALL)
-    private List<BetSelection> selections = new ArrayList<>();
+    private List<BetSelectionEntity> selections = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -61,5 +61,11 @@ public class BetEntity {
     }
     public void setStatus(String status) {
         this.status = status;
+    }
+    public List<BetSelectionEntity> getSelections() {
+        return selections;
+    }
+    public void setSelections(List<BetSelectionEntity> selections) {
+        this.selections = selections;
     }
 }

@@ -5,17 +5,17 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "bet_selections")
-public class BetSelection {
+public class BetSelectionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "bet_id")
-
+    
     private long gameId;
 
+    @ManyToOne
+    @JoinColumn(name = "bet_id")
     private BetEntity bet;
 
     private BigDecimal oddAtBetTime;
@@ -53,5 +53,11 @@ public class BetSelection {
     }
     public void setOutcome(OutcomeEntity outcome) {
         this.outcome = outcome;
+    }
+    public long getGameId() {
+        return gameId;
+    }
+    public void setGameId(long gameId) {
+        this.gameId = gameId;
     }
 }

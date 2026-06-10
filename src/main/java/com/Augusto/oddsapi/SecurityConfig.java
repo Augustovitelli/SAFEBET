@@ -13,7 +13,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/cadastro", "/login", "/odds", "/odds/atualizar").permitAll()
+                .requestMatchers("/cadastro", "/login", "/odds", "/odds/atualizar", "/bet", "/bet/minhas-apostas").permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form.disable());
