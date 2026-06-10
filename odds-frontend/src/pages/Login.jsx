@@ -20,6 +20,8 @@ function Login() {
       });
 
       if (res.ok) {
+        const token = await res.text();
+        sessionStorage.setItem("token", token); // ✅ salva o token
         navigate("/");
       } else {
         setErro("Email ou senha incorretos.");

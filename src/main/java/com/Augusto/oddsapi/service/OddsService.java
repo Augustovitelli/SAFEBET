@@ -96,6 +96,7 @@ public class OddsService {
                         OutcomeResponseDTO outcomeDTO = new OutcomeResponseDTO();
                         outcomeDTO.setName(outcomeEntity.getName());
                         outcomeDTO.setPrice(outcomeEntity.getPrice());
+                        outcomeDTO.setId(outcomeEntity.getId());
                         outcomes.add(outcomeDTO);
                     }
 

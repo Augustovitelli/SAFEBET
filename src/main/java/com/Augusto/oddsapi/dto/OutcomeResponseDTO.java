@@ -2,8 +2,16 @@ package com.Augusto.oddsapi.dto;
 
 public class OutcomeResponseDTO {
     
+    private long id;
     private String name;
     private double price;
+
+    public Long getId(){
+        return id;
+    }
+    public void setId(Long id){
+        this.id = id;
+    }
 
     public String getName() {
         return name;
