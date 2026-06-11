@@ -75,6 +75,7 @@ public class OddsService {
 
         for (GameEntity gameEntity : entities) {
             GameResponseDTO dto = new GameResponseDTO();
+            dto.setId(gameEntity.getId());
             dto.setHome_team(gameEntity.getHomeTeam());
             dto.setAway_team(gameEntity.getAwayTeam());
             dto.setSport_key(gameEntity.getSportKey());

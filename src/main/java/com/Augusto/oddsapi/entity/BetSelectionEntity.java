@@ -12,7 +12,9 @@ public class BetSelectionEntity {
     private Long id;
 
     
-    private long gameId;
+    @ManyToOne
+    @JoinColumn(name = "game_id")
+    private GameEntity game;
 
     @ManyToOne
     @JoinColumn(name = "bet_id")
@@ -22,13 +24,20 @@ public class BetSelectionEntity {
 
     private String selection;
 
+    private String result; // OPEN, WON, LOST
+
     @ManyToOne
     @JoinColumn(name = "outcome_id")
     private OutcomeEntity outcome;
 
-    // getters e setters
     public Long getId() {
         return id;
+    }
+    public GameEntity getGame() {
+        return game;
+    }
+    public void setGame(GameEntity game) {
+        this.game = game;
     }
     public BetEntity getBet() {
         return bet;
@@ -48,16 +57,16 @@ public class BetSelectionEntity {
     public void setSelection(String selection) {
         this.selection = selection;
     }
+    public String getResult() {
+        return result;
+    }
+    public void setResult(String result) {
+        this.result = result;
+    }
     public OutcomeEntity getOutcome() {
         return outcome;
     }
     public void setOutcome(OutcomeEntity outcome) {
         this.outcome = outcome;
-    }
-    public long getGameId() {
-        return gameId;
-    }
-    public void setGameId(long gameId) {
-        this.gameId = gameId;
     }
 }

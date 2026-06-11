@@ -3,7 +3,8 @@ package com.Augusto.oddsapi.dto;
 import java.util.*;
 
 public class GameResponseDTO {
-    
+
+    private Long id;
     private String home_team;
     private String away_team;
     private String sport_key;
@@ -11,6 +12,9 @@ public class GameResponseDTO {
     private double awayTeamPrice;
     private double drawPrice;
     private List<BookmakerResponseDTO> bookmakers;
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
 
     public String getHome_team() {

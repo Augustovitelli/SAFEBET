@@ -1,15 +1,27 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Home() {
   const [games, setGames] = useState([]);
-  const [betSlip, setBetSlip] = useState([]); // seleções no painel
+  const [betSlip, setBetSlip] = useState([]);
   const [valorApostado, setValorApostado] = useState("");
   const [mensagem, setMensagem] = useState("");
+  const [saldo, setSaldo] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://localhost:8080/odds")
       .then((res) => res.json())
       .then((data) => setGames(data));
+
+    const token = sessionStorage.getItem("token");
+    if (token) {
+      fetch("http://localhost:8080/usuario/saldo", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => setSaldo(data));
+    }
   }, []);
 
   function adicionarSelecao(outcomeId, name, price, gameName) {
@@ -68,6 +80,12 @@ function Home() {
         setMensagem("Aposta realizada com sucesso! ✅");
         setBetSlip([]);
         setValorApostado("");
+        const token = sessionStorage.getItem("token");
+        fetch("http://localhost:8080/usuario/saldo", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+          .then((r) => r.json())
+          .then((data) => setSaldo(data));
       } else {
         setMensagem("Erro ao realizar aposta. Verifique seu saldo!");
       }
@@ -81,9 +99,30 @@ function Home() {
 
       {/* CONTEÚDO PRINCIPAL */}
       <div className="flex-1 p-6">
-        <h1 className="text-3xl font-bold text-center text-yellow-400 mb-8">
-          ⚽ Odds da Copa do Mundo 2026
-        </h1>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            {saldo !== null && (
+              <div className="bg-gray-800 border border-gray-700 rounded-xl px-4 py-2 flex items-center gap-2">
+                <span className="text-gray-400 text-sm">Saldo</span>
+                <span className="text-green-400 font-bold text-lg">
+                  R$ {Number(saldo).toFixed(2)}
+                </span>
+              </div>
+            )}
+            {sessionStorage.getItem("token") && (
+              <button
+                onClick={() => navigate("/minhas-apostas")}
+                className="bg-gray-800 border border-gray-700 rounded-xl px-4 py-2 text-sm font-semibold text-yellow-400 hover:bg-gray-700 transition"
+              >
+                Minhas Apostas
+              </button>
+            )}
+          </div>
+          <h1 className="text-3xl font-bold text-center text-yellow-400 flex-1">
+            ⚽ Odds da Copa do Mundo 2026
+          </h1>
+          <div className="w-36" />
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {games.map((game, i) => (

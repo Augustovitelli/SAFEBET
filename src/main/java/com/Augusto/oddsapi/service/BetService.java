@@ -5,6 +5,7 @@ import com.Augusto.oddsapi.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import com.Augusto.oddsapi.entity.BetEntity;
 import com.Augusto.oddsapi.entity.BetSelectionEntity;
+import com.Augusto.oddsapi.entity.GameEntity;
 import com.Augusto.oddsapi.entity.UserEntity;
 import com.Augusto.oddsapi.dto.BetSelectionResponseDTO;
 
@@ -56,10 +57,13 @@ public class BetService {
                 for (var selectionDTO : dto.getSelections()) {
                     BetSelectionEntity selection = new BetSelectionEntity();
                     selection.setOutcome(outcomeRepository.findById(selectionDTO.getOutcomeId()).get());
+                    GameEntity game = selection.getOutcome().getMarket().getBookmaker().getGame();
+                    selection.setGame(game);
                     oddTotal = oddTotal.multiply(selectionDTO.getOdd());
                     selection.setOddAtBetTime(selectionDTO.getOdd());
                     selection.setBet(bet);
                     selection.setSelection(selection.getOutcome().getName());
+                    selection.setResult("OPEN");
                     bet.getSelections().add(selection);
                     betSelectionRepository.save(selection);
                 }
@@ -122,11 +126,20 @@ public class BetService {
                             selectionDTO.setSelection(
                                     selection.getSelection()
                             );
-                            
 
                             selectionDTO.setOddAtBetTime(
                                     selection.getOddAtBetTime()
                             );
+
+                            selectionDTO.setResult(
+                                    selection.getResult()
+                            );
+
+                            if (selection.getGame() != null) {
+                                selectionDTO.setGameName(
+                                        selection.getGame().getHomeTeam() + " x " + selection.getGame().getAwayTeam()
+                                );
+                            }
 
                             return selectionDTO;
 

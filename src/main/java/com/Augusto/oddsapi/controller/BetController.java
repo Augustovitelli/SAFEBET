@@ -1,5 +1,6 @@
 package com.Augusto.oddsapi.controller;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
@@ -25,7 +26,7 @@ public class BetController {
         String token = authHeader.substring(7); // remove o "Bearer "
         betService.fazerAposta(dto, token);
     }
-    @PostMapping("/bet/minhas-apostas")
+    @GetMapping("/bet/minhas-apostas")
     public List<BetResponseDTO> minhasApostas(@RequestHeader("Authorization") String authHeader) {
         String token = authHeader.substring(7); // remove o "Bearer "
         return betService.retornarApostas(token);

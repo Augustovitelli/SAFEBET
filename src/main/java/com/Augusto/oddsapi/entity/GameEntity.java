@@ -18,6 +18,8 @@ public class GameEntity {
     private double awayTeamPrice;
     private double drawPrice;
 
+    private String footballDataId;
+
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL)
     private List<BookmakerEntity> bookmakers;
 
@@ -75,5 +77,11 @@ public class GameEntity {
     }
     public void setDrawPrice(double drawPrice) {
         this.drawPrice = drawPrice;
+    }
+    public String getFootballDataId() {
+        return footballDataId;
+    }
+    public void setFootballDataId(String footballDataId) {
+        this.footballDataId = footballDataId;
     }
 }

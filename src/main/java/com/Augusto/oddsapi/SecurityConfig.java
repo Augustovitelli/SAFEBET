@@ -24,7 +24,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/cadastro", "/login", "/odds", "/odds/atualizar").permitAll()
-                .requestMatchers("/bet", "/bet/minhas-apostas").authenticated()
+                .requestMatchers(HttpMethod.GET, "/bet/minhas-apostas", "/usuario/saldo").authenticated()
+                .requestMatchers("/bet").authenticated()
+                .requestMatchers("/results/**").authenticated()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

@@ -33,8 +33,15 @@ public class UserService {
     public String login(String email, String senha) {
         UserEntity user = userRepository.findByEmail(email);
         if (user != null && passwordEncoder.matches(senha, user.getSenha())) {
-            return jwtService.gerarToken(email, user.getId()); // ✅ retorna o token
+            return jwtService.gerarToken(email, user.getId());
         }
         throw new IllegalArgumentException("Email ou senha incorretos");
+    }
+
+    public BigDecimal getSaldo(String token) {
+        Long userId = jwtService.extrairUserId(token);
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"))
+                .getSaldo();
     }
 }
