@@ -1,6 +1,6 @@
 package com.Augusto.oddsapi.service;
 
-import com.Augusto.oddsapi.dto.FootballDataMatchDTO;
+import com.Augusto.oddsapi.dto.WorldCup26GameDTO;
 import com.Augusto.oddsapi.entity.BetEntity;
 import com.Augusto.oddsapi.entity.BetSelectionEntity;
 import com.Augusto.oddsapi.entity.GameEntity;
@@ -12,25 +12,28 @@ import com.Augusto.oddsapi.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class ResultService {
 
-    private final FootballDataService footballDataService;
+    private final WorldCup26Service worldCup26Service;
     private final GameRepository gameRepository;
     private final BetSelectionRepository betSelectionRepository;
     private final BetRepository betRepository;
     private final UserRepository userRepository;
 
-    public ResultService(FootballDataService footballDataService,
+    public ResultService(WorldCup26Service worldCup26Service,
                          GameRepository gameRepository,
                          BetSelectionRepository betSelectionRepository,
                          BetRepository betRepository,
                          UserRepository userRepository) {
-        this.footballDataService = footballDataService;
+        this.worldCup26Service = worldCup26Service;
         this.gameRepository = gameRepository;
         this.betSelectionRepository = betSelectionRepository;
         this.betRepository = betRepository;
@@ -39,21 +42,33 @@ public class ResultService {
 
     @Transactional
     public void resolveMatch(String footballDataMatchId) {
-        FootballDataMatchDTO match = footballDataService.getMatch(footballDataMatchId);
+        WorldCup26GameDTO apiGame = worldCup26Service.getGame(footballDataMatchId);
 
-        if (match.getScore() == null || match.getScore().getWinner() == null) {
+        String finished = apiGame.getFinished();
+        if (finished == null || finished.isBlank() || "false".equalsIgnoreCase(finished) || "0".equals(finished)) {
             throw new IllegalStateException("Jogo ainda não finalizado");
         }
 
-        GameEntity game = gameRepository.findByFootballDataId(footballDataMatchId)
-                .orElseThrow(() -> new RuntimeException("Jogo não mapeado com footballDataId: " + footballDataMatchId));
+        String homeScoreStr = apiGame.getHomeScore();
+        String awayScoreStr = apiGame.getAwayScore();
+        if (homeScoreStr == null || homeScoreStr.isBlank() || awayScoreStr == null || awayScoreStr.isBlank()) {
+            throw new IllegalStateException("Placar não disponível");
+        }
 
-        String winnerName = switch (match.getScore().getWinner()) {
-            case "HOME_TEAM" -> game.getHomeTeam();
-            case "AWAY_TEAM" -> game.getAwayTeam();
-            case "DRAW" -> "Draw";
-            default -> throw new IllegalStateException("Winner desconhecido: " + match.getScore().getWinner());
-        };
+        int homeScore = Integer.parseInt(homeScoreStr.trim());
+        int awayScore = Integer.parseInt(awayScoreStr.trim());
+
+        GameEntity game = gameRepository.findByFootballDataId(footballDataMatchId)
+                .orElseThrow(() -> new RuntimeException("Jogo não mapeado com id: " + footballDataMatchId));
+
+        String winnerName;
+        if (homeScore > awayScore) {
+            winnerName = game.getHomeTeam();
+        } else if (awayScore > homeScore) {
+            winnerName = game.getAwayTeam();
+        } else {
+            winnerName = "Draw";
+        }
 
         List<BetSelectionEntity> openSelections =
                 betSelectionRepository.findOpenByGameFootballDataId(footballDataMatchId);
@@ -94,5 +109,61 @@ public class ResultService {
                 .orElseThrow(() -> new RuntimeException("Jogo não encontrado: " + gameId));
         game.setFootballDataId(footballDataMatchId);
         gameRepository.save(game);
+    }
+
+    @Transactional
+    public Map<String, List<String>> autoMapearJogos() {
+        List<WorldCup26GameDTO> apiGames = worldCup26Service.getAllGames();
+        List<GameEntity> dbGames = gameRepository.findAll();
+
+        List<String> mapeados = new ArrayList<>();
+        List<String> naoEncontrados = new ArrayList<>();
+
+        for (GameEntity dbGame : dbGames) {
+            if (dbGame.getFootballDataId() != null && !dbGame.getFootballDataId().isBlank()) {
+                continue; // já mapeado
+            }
+
+            String homeNorm = normalizar(dbGame.getHomeTeam());
+            String awayNorm = normalizar(dbGame.getAwayTeam());
+
+            WorldCup26GameDTO match = apiGames.stream()
+                    .filter(g -> g.getHomeTeamNameEn() != null && !g.getHomeTeamNameEn().isBlank()
+                              && g.getAwayTeamNameEn() != null && !g.getAwayTeamNameEn().isBlank())
+                    .filter(g -> corresponde(homeNorm, normalizar(g.getHomeTeamNameEn()))
+                              && corresponde(awayNorm, normalizar(g.getAwayTeamNameEn())))
+                    .findFirst()
+                    .orElse(null);
+
+            if (match != null) {
+                dbGame.setFootballDataId(match.getId());
+                gameRepository.save(dbGame);
+                mapeados.add(dbGame.getHomeTeam() + " vs " + dbGame.getAwayTeam() + " → " + match.getId());
+            } else {
+                naoEncontrados.add(dbGame.getHomeTeam() + " vs " + dbGame.getAwayTeam());
+            }
+        }
+
+        Map<String, List<String>> resultado = new HashMap<>();
+        resultado.put("mapeados", mapeados);
+        resultado.put("nao_encontrados", naoEncontrados);
+        return resultado;
+    }
+
+    private String normalizar(String nome) {
+        if (nome == null) return "";
+        return nome.toLowerCase().trim()
+                .replaceAll("[áàãâä]", "a")
+                .replaceAll("[éèêë]", "e")
+                .replaceAll("[íìîï]", "i")
+                .replaceAll("[óòõôö]", "o")
+                .replaceAll("[úùûü]", "u")
+                .replaceAll("[ç]", "c")
+                .replaceAll("[^a-z0-9 ]", "");
+    }
+
+    private boolean corresponde(String a, String b) {
+        if (a.equals(b)) return true;
+        return a.contains(b) || b.contains(a);
     }
 }

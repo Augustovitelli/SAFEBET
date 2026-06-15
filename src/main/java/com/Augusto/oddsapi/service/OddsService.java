@@ -47,13 +47,42 @@ public class OddsService {
         return buscarDoBanco();
     }
 
-    // Chama API, apaga tudo e salva novos dados (endpoint /odds/atualizar)
+    // Chama API, atualiza jogos existentes e insere novos (endpoint /odds/atualizar)
     @Transactional
     public List<GameResponseDTO> atualizarDaApi() {
         List<Game> games = chamarApi();
-        gameRepository.deleteAll();
-        salvarGamesNoBanco(games);
+        for (Game game : games) {
+            gameRepository.findByHomeTeamAndAwayTeam(game.getHome_team(), game.getAway_team())
+                    .ifPresentOrElse(
+                            existing -> atualizarPrecos(existing, game),
+                            () -> salvarGamesNoBanco(List.of(game))
+                    );
+        }
         return buscarDoBanco();
+    }
+
+    private void atualizarPrecos(GameEntity existing, Game game) {
+        double homeTeamPrice = 0.0, awayTeamPrice = 0.0, drawPrice = 0.0;
+        int countHome = 0, countAway = 0, countDraw = 0;
+
+        for (Bookmaker bookmaker : game.getBookmakers()) {
+            for (Market market : bookmaker.getMarkets()) {
+                for (Outcome outcome : market.getOutcomes()) {
+                    if (outcome.getName().equalsIgnoreCase(game.getHome_team())) {
+                        homeTeamPrice += outcome.getPrice(); countHome++;
+                    } else if (outcome.getName().equalsIgnoreCase(game.getAway_team())) {
+                        awayTeamPrice += outcome.getPrice(); countAway++;
+                    } else if (outcome.getName().equalsIgnoreCase("Draw")) {
+                        drawPrice += outcome.getPrice(); countDraw++;
+                    }
+                }
+            }
+        }
+
+        existing.setHomeTeamPrice(countHome > 0 ? homeTeamPrice / countHome : 0.0);
+        existing.setAwayTeamPrice(countAway > 0 ? awayTeamPrice / countAway : 0.0);
+        existing.setDrawPrice(countDraw > 0 ? drawPrice / countDraw : 0.0);
+        gameRepository.save(existing);
     }
 
     private List<Game> chamarApi() {

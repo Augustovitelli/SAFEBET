@@ -3,6 +3,8 @@ package com.Augusto.oddsapi.controller;
 import com.Augusto.oddsapi.service.ResultService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/results")
@@ -30,5 +32,12 @@ public class ResultController {
     public ResponseEntity<String> resolveMatch(@PathVariable String footballDataMatchId) {
         resultService.resolveMatch(footballDataMatchId);
         return ResponseEntity.ok("Apostas resolvidas com sucesso");
+    }
+
+    // Mapeia automaticamente os jogos do banco com os IDs da worldcup26.ir por nome de time
+    // POST /results/auto-map
+    @PostMapping("/auto-map")
+    public ResponseEntity<Map<String, List<String>>> autoMapearJogos() {
+        return ResponseEntity.ok(resultService.autoMapearJogos());
     }
 }
