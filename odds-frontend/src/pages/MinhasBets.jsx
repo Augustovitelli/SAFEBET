@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const STATUS_LABEL = {
-  OPEN: { label: "Aberta", color: "bg-blue-500 text-white" },
-  WON: { label: "Ganha", color: "bg-green-500 text-white" },
-  LOST: { label: "Perdida", color: "bg-red-500 text-white" },
+  OPEN: { label: "Aberta", color: "bg-blue-500/20 text-blue-400 border border-blue-500/30" },
+  WON: { label: "Ganha", color: "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" },
+  LOST: { label: "Perdida", color: "bg-red-500/20 text-red-400 border border-red-500/30" },
 };
 
 const RESULT_LABEL = {
-  OPEN: { label: "Aberta", color: "text-blue-400" },
-  WON: { label: "Ganha", color: "text-green-400" },
+  OPEN: { label: "Em aberto", color: "text-blue-400" },
+  WON: { label: "Ganha", color: "text-emerald-400" },
   LOST: { label: "Perdida", color: "text-red-400" },
 };
 
@@ -30,7 +30,7 @@ function MinhasBets() {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
-        if (!res.ok) throw new Error("Erro ao carregar apostas");
+        if (!res.ok) throw new Error();
         return res.json();
       })
       .then((data) => {
@@ -54,83 +54,96 @@ function MinhasBets() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      {/* Header */}
-      <div className="bg-gray-800 border-b border-gray-700 px-6 py-4 flex items-center gap-4">
-        <button
-          onClick={() => navigate("/")}
-          className="text-yellow-400 hover:text-yellow-300 font-semibold text-sm transition"
-        >
-          ← Voltar
-        </button>
-        <h1 className="text-2xl font-bold text-yellow-400">Minhas Apostas</h1>
-      </div>
+    <div className="min-h-screen bg-zinc-950 text-white">
 
-      <div className="max-w-3xl mx-auto p-6">
-        {/* Tabs de filtro */}
-        <div className="flex gap-2 mb-6">
-          {tabs.map((tab) => (
+      {/* NAVBAR */}
+      <header className="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-sm sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
             <button
-              key={tab.key}
-              onClick={() => setFiltro(tab.key)}
-              className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${
-                filtro === tab.key
-                  ? "bg-yellow-400 text-gray-900"
-                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-              }`}
+              onClick={() => navigate("/")}
+              className="text-zinc-400 hover:text-white transition-colors text-sm font-medium flex items-center gap-1"
             >
-              {tab.label}
-              {tab.key !== "TODAS" && (
-                <span className="ml-2 text-xs opacity-70">
-                  ({bets.filter((b) => b.status === tab.key).length})
-                </span>
-              )}
-              {tab.key === "TODAS" && (
-                <span className="ml-2 text-xs opacity-70">({bets.length})</span>
-              )}
+              ← Voltar
             </button>
-          ))}
+            <div className="w-px h-5 bg-zinc-700" />
+            <div className="flex items-center gap-2">
+              <span className="text-emerald-400 text-2xl font-black tracking-tight">SAFE</span>
+              <span className="text-white text-2xl font-black tracking-tight">BET</span>
+            </div>
+          </div>
+          <h1 className="text-sm font-semibold text-zinc-300">Minhas Apostas</h1>
+        </div>
+      </header>
+
+      <main className="max-w-3xl mx-auto px-6 py-8">
+
+        {/* Tabs de filtro */}
+        <div className="flex gap-2 mb-6 flex-wrap">
+          {tabs.map((tab) => {
+            const count =
+              tab.key === "TODAS"
+                ? bets.length
+                : bets.filter((b) => b.status === tab.key).length;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setFiltro(tab.key)}
+                className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all border ${
+                  filtro === tab.key
+                    ? "bg-emerald-500 border-emerald-400 text-white"
+                    : "bg-zinc-900 border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-white"
+                }`}
+              >
+                {tab.label}
+                <span className={`ml-2 text-xs ${filtro === tab.key ? "text-emerald-100" : "text-zinc-600"}`}>
+                  ({count})
+                </span>
+              </button>
+            );
+          })}
         </div>
 
-        {/* Conteúdo */}
+        {/* Estados */}
         {loading && (
-          <p className="text-gray-400 text-center py-12">Carregando apostas...</p>
+          <p className="text-zinc-500 text-center py-16">Carregando apostas...</p>
         )}
 
         {erro && (
-          <p className="text-red-400 text-center py-12">{erro}</p>
+          <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
+            <p className="text-red-400 text-sm text-center">{erro}</p>
+          </div>
         )}
 
         {!loading && !erro && betsFiltradas.length === 0 && (
-          <div className="text-center py-16">
-            <p className="text-gray-500 text-lg">Nenhuma aposta encontrada.</p>
+          <div className="text-center py-20">
+            <p className="text-zinc-500 text-lg mb-4">Nenhuma aposta encontrada.</p>
             <button
               onClick={() => navigate("/")}
-              className="mt-4 bg-yellow-400 text-gray-900 font-bold px-6 py-2 rounded-lg hover:bg-yellow-300 transition"
+              className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-6 py-2.5 rounded-xl transition-all text-sm"
             >
               Fazer uma aposta
             </button>
           </div>
         )}
 
+        {/* Cards de apostas */}
         <div className="space-y-4">
           {betsFiltradas.map((bet) => {
             const statusInfo = STATUS_LABEL[bet.status] ?? {
               label: bet.status,
-              color: "bg-gray-500 text-white",
+              color: "bg-zinc-700 text-zinc-300 border border-zinc-600",
             };
 
             return (
               <div
                 key={bet.id}
-                className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden"
+                className="bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-2xl overflow-hidden transition-all"
               >
                 {/* Cabeçalho do card */}
-                <div className="flex items-center justify-between px-5 py-3 border-b border-gray-700">
-                  <span className="text-gray-400 text-sm">Aposta #{bet.id}</span>
-                  <span
-                    className={`text-xs font-bold px-3 py-1 rounded-full ${statusInfo.color}`}
-                  >
+                <div className="flex items-center justify-between px-5 py-3 border-b border-zinc-800">
+                  <span className="text-zinc-500 text-xs font-medium">Aposta #{bet.id}</span>
+                  <span className={`text-xs font-bold px-3 py-1 rounded-full ${statusInfo.color}`}>
                     {statusInfo.label}
                   </span>
                 </div>
@@ -140,21 +153,21 @@ function MinhasBets() {
                   {bet.selections.map((sel, i) => {
                     const resultInfo = RESULT_LABEL[sel.result] ?? {
                       label: sel.result,
-                      color: "text-gray-400",
+                      color: "text-zinc-400",
                     };
                     return (
                       <div
                         key={i}
-                        className="flex items-center justify-between bg-gray-900 rounded-lg px-3 py-2"
+                        className="flex items-center justify-between bg-zinc-800 rounded-xl px-4 py-2.5"
                       >
-                        <div>
+                        <div className="min-w-0 flex-1">
                           {sel.gameName && (
-                            <p className="text-xs text-gray-500">{sel.gameName}</p>
+                            <p className="text-[11px] text-zinc-500 truncate">{sel.gameName}</p>
                           )}
-                          <p className="text-sm text-white font-medium">{sel.selection}</p>
+                          <p className="text-sm text-white font-medium mt-0.5">{sel.selection}</p>
                         </div>
-                        <div className="text-right">
-                          <p className="text-yellow-400 font-bold text-sm">
+                        <div className="text-right ml-3 shrink-0">
+                          <p className="text-emerald-400 font-bold text-sm">
                             {Number(sel.oddAtBetTime).toFixed(2)}
                           </p>
                           {sel.result && (
@@ -169,24 +182,24 @@ function MinhasBets() {
                 </div>
 
                 {/* Resumo financeiro */}
-                <div className="px-5 py-3 bg-gray-750 border-t border-gray-700 grid grid-cols-3 gap-3 text-center">
+                <div className="px-5 py-3 border-t border-zinc-800 grid grid-cols-3 gap-3 text-center">
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">Apostado</p>
+                    <p className="text-xs text-zinc-500 mb-1">Apostado</p>
                     <p className="text-white font-semibold text-sm">
                       R$ {Number(bet.valorApostado).toFixed(2)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">Odd Total</p>
-                    <p className="text-yellow-400 font-bold text-sm">
-                      {Number(bet.oddTotal).toFixed(2)}
+                    <p className="text-xs text-zinc-500 mb-1">Odd Total</p>
+                    <p className="text-emerald-400 font-bold text-sm">
+                      {Number(bet.oddTotal).toFixed(2)}x
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">Retorno Poss.</p>
+                    <p className="text-xs text-zinc-500 mb-1">Retorno Poss.</p>
                     <p
                       className={`font-semibold text-sm ${
-                        bet.status === "WON" ? "text-green-400" : "text-gray-300"
+                        bet.status === "WON" ? "text-emerald-400" : "text-zinc-300"
                       }`}
                     >
                       R$ {Number(bet.possibleReturn).toFixed(2)}
@@ -197,7 +210,7 @@ function MinhasBets() {
             );
           })}
         </div>
-      </div>
+      </main>
     </div>
   );
 }

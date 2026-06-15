@@ -1,6 +1,7 @@
 package com.Augusto.oddsapi.entity;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.util.*;
 
 @Entity
@@ -14,9 +15,9 @@ public class GameEntity {
     private String awayTeam;
     private String sportKey;
 
-    private double homeTeamPrice;
-    private double awayTeamPrice;
-    private double drawPrice;
+    private BigDecimal homeTeamPrice;
+    private BigDecimal awayTeamPrice;
+    private BigDecimal drawPrice;
 
     private String footballDataId;
 
@@ -60,22 +61,22 @@ public class GameEntity {
     public void setBookmakers(List<BookmakerEntity> bookmakers) {
         this.bookmakers = bookmakers;
     }
-    public double getHomeTeamPrice() {
+    public BigDecimal getHomeTeamPrice() {
         return homeTeamPrice;
     }
-    public void setHomeTeamPrice(double homeTeamPrice) {
+    public void setHomeTeamPrice(BigDecimal homeTeamPrice) {
         this.homeTeamPrice = homeTeamPrice;
     }
-    public double getAwayTeamPrice() {
+    public BigDecimal getAwayTeamPrice() {
         return awayTeamPrice;
     }
-    public void setAwayTeamPrice(double awayTeamPrice) {
+    public void setAwayTeamPrice(BigDecimal awayTeamPrice) {
         this.awayTeamPrice = awayTeamPrice;
     }
-    public double getDrawPrice() {
+    public BigDecimal getDrawPrice() {
         return drawPrice;
     }
-    public void setDrawPrice(double drawPrice) {
+    public void setDrawPrice(BigDecimal drawPrice) {
         this.drawPrice = drawPrice;
     }
     public String getFootballDataId() {

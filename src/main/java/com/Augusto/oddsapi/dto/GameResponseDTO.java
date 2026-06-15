@@ -1,5 +1,6 @@
 package com.Augusto.oddsapi.dto;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 public class GameResponseDTO {
@@ -8,9 +9,9 @@ public class GameResponseDTO {
     private String home_team;
     private String away_team;
     private String sport_key;
-    private double homeTeamPrice;
-    private double awayTeamPrice;
-    private double drawPrice;
+    private BigDecimal homeTeamPrice;
+    private BigDecimal awayTeamPrice;
+    private BigDecimal drawPrice;
     private List<BookmakerResponseDTO> bookmakers;
 
     public Long getId() { return id; }
@@ -41,22 +42,22 @@ public class GameResponseDTO {
     public void setBookmakers(List<BookmakerResponseDTO> bookmakers) {
         this.bookmakers = bookmakers;
     }
-    public double getHomeTeamPrice() {
+    public BigDecimal getHomeTeamPrice() {
         return homeTeamPrice;
     }
-    public void setHomeTeamPrice(double homeTeamPrice) {
+    public void setHomeTeamPrice(BigDecimal homeTeamPrice) {
         this.homeTeamPrice = homeTeamPrice;
     }
-    public double getAwayTeamPrice() {
+    public BigDecimal getAwayTeamPrice() {
         return awayTeamPrice;
     }
-    public void setAwayTeamPrice(double awayTeamPrice) {
+    public void setAwayTeamPrice(BigDecimal awayTeamPrice) {
         this.awayTeamPrice = awayTeamPrice;
     }
-    public double getDrawPrice() {
+    public BigDecimal getDrawPrice() {
         return drawPrice;
     }
-    public void setDrawPrice(double drawPrice) {
+    public void setDrawPrice(BigDecimal drawPrice) {
         this.drawPrice = drawPrice;
     }
 }

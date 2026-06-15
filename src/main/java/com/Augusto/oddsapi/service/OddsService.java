@@ -1,5 +1,7 @@
 package com.Augusto.oddsapi.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,26 +64,26 @@ public class OddsService {
     }
 
     private void atualizarPrecos(GameEntity existing, Game game) {
-        double homeTeamPrice = 0.0, awayTeamPrice = 0.0, drawPrice = 0.0;
+        BigDecimal homeTeamPrice = BigDecimal.ZERO, awayTeamPrice = BigDecimal.ZERO, drawPrice = BigDecimal.ZERO;
         int countHome = 0, countAway = 0, countDraw = 0;
 
         for (Bookmaker bookmaker : game.getBookmakers()) {
             for (Market market : bookmaker.getMarkets()) {
                 for (Outcome outcome : market.getOutcomes()) {
                     if (outcome.getName().equalsIgnoreCase(game.getHome_team())) {
-                        homeTeamPrice += outcome.getPrice(); countHome++;
+                        homeTeamPrice = homeTeamPrice.add(BigDecimal.valueOf(outcome.getPrice())); countHome++;
                     } else if (outcome.getName().equalsIgnoreCase(game.getAway_team())) {
-                        awayTeamPrice += outcome.getPrice(); countAway++;
+                        awayTeamPrice = awayTeamPrice.add(BigDecimal.valueOf(outcome.getPrice())); countAway++;
                     } else if (outcome.getName().equalsIgnoreCase("Draw")) {
-                        drawPrice += outcome.getPrice(); countDraw++;
+                        drawPrice = drawPrice.add(BigDecimal.valueOf(outcome.getPrice())); countDraw++;
                     }
                 }
             }
         }
 
-        existing.setHomeTeamPrice(countHome > 0 ? homeTeamPrice / countHome : 0.0);
-        existing.setAwayTeamPrice(countAway > 0 ? awayTeamPrice / countAway : 0.0);
-        existing.setDrawPrice(countDraw > 0 ? drawPrice / countDraw : 0.0);
+        existing.setHomeTeamPrice(countHome > 0 ? homeTeamPrice.divide(BigDecimal.valueOf(countHome), 2, RoundingMode.HALF_UP) : BigDecimal.ZERO);
+        existing.setAwayTeamPrice(countAway > 0 ? awayTeamPrice.divide(BigDecimal.valueOf(countAway), 2, RoundingMode.HALF_UP) : BigDecimal.ZERO);
+        existing.setDrawPrice(countDraw > 0 ? drawPrice.divide(BigDecimal.valueOf(countDraw), 2, RoundingMode.HALF_UP) : BigDecimal.ZERO);
         gameRepository.save(existing);
     }
 
@@ -108,9 +110,9 @@ public class OddsService {
             dto.setHome_team(gameEntity.getHomeTeam());
             dto.setAway_team(gameEntity.getAwayTeam());
             dto.setSport_key(gameEntity.getSportKey());
-            dto.setHomeTeamPrice(gameEntity.getHomeTeamPrice());
-            dto.setAwayTeamPrice(gameEntity.getAwayTeamPrice());
-            dto.setDrawPrice(gameEntity.getDrawPrice());
+            dto.setHomeTeamPrice(gameEntity.getHomeTeamPrice() != null ? gameEntity.getHomeTeamPrice() : BigDecimal.ZERO);
+            dto.setAwayTeamPrice(gameEntity.getAwayTeamPrice() != null ? gameEntity.getAwayTeamPrice() : BigDecimal.ZERO);
+            dto.setDrawPrice(gameEntity.getDrawPrice() != null ? gameEntity.getDrawPrice() : BigDecimal.ZERO);
 
             List<BookmakerResponseDTO> bookmakers = new ArrayList<>();
             for (BookmakerEntity bookmakerEntity : gameEntity.getBookmakers()) {
@@ -151,11 +153,11 @@ public class OddsService {
 
         for (Game game : games) {
 
-            double homeTeamPrice = 0.0;
+            BigDecimal homeTeamPrice = BigDecimal.ZERO;
             int countHome = 0;
-            double awayTeamPrice = 0.0;
+            BigDecimal awayTeamPrice = BigDecimal.ZERO;
             int countAway = 0;
-            double drawPrice = 0.0;
+            BigDecimal drawPrice = BigDecimal.ZERO;
             int countDraw = 0;
 
             GameEntity gameEntity = new GameEntity();
@@ -183,13 +185,13 @@ public class OddsService {
                         outcomeEntity.setMarket(marketEntity);
                         outcomeEntities.add(outcomeEntity);
                         if (outcome.getName().equalsIgnoreCase(game.getHome_team())) {
-                            homeTeamPrice += outcome.getPrice();
+                            homeTeamPrice = homeTeamPrice.add(BigDecimal.valueOf(outcome.getPrice()));
                             countHome++;
                         } else if (outcome.getName().equalsIgnoreCase(game.getAway_team())) {
-                            awayTeamPrice += outcome.getPrice();
+                            awayTeamPrice = awayTeamPrice.add(BigDecimal.valueOf(outcome.getPrice()));
                             countAway++;
                         } else if (outcome.getName().equalsIgnoreCase("Draw")) {
-                            drawPrice += outcome.getPrice();
+                            drawPrice = drawPrice.add(BigDecimal.valueOf(outcome.getPrice()));
                             countDraw++;
                         }
                     }
@@ -204,9 +206,9 @@ public class OddsService {
             }
 
 
-            gameEntity.setHomeTeamPrice(countHome > 0 ? homeTeamPrice / countHome : 0.00);
-            gameEntity.setAwayTeamPrice(countAway > 0 ? awayTeamPrice / countAway : 0.00);
-            gameEntity.setDrawPrice(countDraw > 0 ? drawPrice / countDraw : 0.00);
+            gameEntity.setHomeTeamPrice(countHome > 0 ? homeTeamPrice.divide(BigDecimal.valueOf(countHome), 2, RoundingMode.HALF_UP) : BigDecimal.ZERO);
+            gameEntity.setAwayTeamPrice(countAway > 0 ? awayTeamPrice.divide(BigDecimal.valueOf(countAway), 2, RoundingMode.HALF_UP) : BigDecimal.ZERO);
+            gameEntity.setDrawPrice(countDraw > 0 ? drawPrice.divide(BigDecimal.valueOf(countDraw), 2, RoundingMode.HALF_UP) : BigDecimal.ZERO);
 
             gameEntity.setBookmakers(bookmakerEntities);
             entidades.add(gameEntity);
