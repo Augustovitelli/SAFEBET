@@ -2,6 +2,7 @@ package com.Augusto.oddsapi.entity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 @Entity
@@ -14,6 +15,7 @@ public class GameEntity {
     private String homeTeam;
     private String awayTeam;
     private String sportKey;
+    private OffsetDateTime commenceTime;
 
     private BigDecimal homeTeamPrice;
     private BigDecimal awayTeamPrice;
@@ -84,5 +86,11 @@ public class GameEntity {
     }
     public void setFootballDataId(String footballDataId) {
         this.footballDataId = footballDataId;
+    }
+    public OffsetDateTime getCommenceTime() {
+        return commenceTime;
+    }
+    public void setCommenceTime(OffsetDateTime commenceTime) {
+        this.commenceTime = commenceTime;
     }
 }

@@ -1,6 +1,7 @@
 package com.Augusto.oddsapi.dto;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 public class GameResponseDTO {
@@ -12,6 +13,7 @@ public class GameResponseDTO {
     private BigDecimal homeTeamPrice;
     private BigDecimal awayTeamPrice;
     private BigDecimal drawPrice;
+    private OffsetDateTime commenceTime;
     private List<BookmakerResponseDTO> bookmakers;
 
     public Long getId() { return id; }
@@ -59,5 +61,11 @@ public class GameResponseDTO {
     }
     public void setDrawPrice(BigDecimal drawPrice) {
         this.drawPrice = drawPrice;
+    }
+    public OffsetDateTime getCommenceTime() {
+        return commenceTime;
+    }
+    public void setCommenceTime(OffsetDateTime commenceTime) {
+        this.commenceTime = commenceTime;
     }
 }

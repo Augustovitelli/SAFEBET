@@ -2,9 +2,11 @@ package com.Augusto.oddsapi.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -84,6 +86,7 @@ public class OddsService {
         existing.setHomeTeamPrice(countHome > 0 ? homeTeamPrice.divide(BigDecimal.valueOf(countHome), 2, RoundingMode.HALF_UP) : BigDecimal.ZERO);
         existing.setAwayTeamPrice(countAway > 0 ? awayTeamPrice.divide(BigDecimal.valueOf(countAway), 2, RoundingMode.HALF_UP) : BigDecimal.ZERO);
         existing.setDrawPrice(countDraw > 0 ? drawPrice.divide(BigDecimal.valueOf(countDraw), 2, RoundingMode.HALF_UP) : BigDecimal.ZERO);
+        existing.setCommenceTime(game.getCommence_time());
         gameRepository.save(existing);
     }
 
@@ -101,7 +104,7 @@ public class OddsService {
     }
 
     private List<GameResponseDTO> buscarDoBanco() {
-        List<GameEntity> entities = gameRepository.findAll();
+        List<GameEntity> entities = gameRepository.findByCommenceTimeAfter(OffsetDateTime.now());
         List<GameResponseDTO> games = new ArrayList<>();
 
         for (GameEntity gameEntity : entities) {
@@ -113,6 +116,7 @@ public class OddsService {
             dto.setHomeTeamPrice(gameEntity.getHomeTeamPrice() != null ? gameEntity.getHomeTeamPrice() : BigDecimal.ZERO);
             dto.setAwayTeamPrice(gameEntity.getAwayTeamPrice() != null ? gameEntity.getAwayTeamPrice() : BigDecimal.ZERO);
             dto.setDrawPrice(gameEntity.getDrawPrice() != null ? gameEntity.getDrawPrice() : BigDecimal.ZERO);
+            dto.setCommenceTime(gameEntity.getCommenceTime());
 
             List<BookmakerResponseDTO> bookmakers = new ArrayList<>();
             for (BookmakerEntity bookmakerEntity : gameEntity.getBookmakers()) {
@@ -144,6 +148,9 @@ public class OddsService {
             games.add(dto);
         }
 
+        games.sort(Comparator.comparing(GameResponseDTO::getCommenceTime,
+                Comparator.nullsLast(Comparator.naturalOrder())));
+
         return games;
     }
 
@@ -164,6 +171,7 @@ public class OddsService {
             gameEntity.setHomeTeam(game.getHome_team());
             gameEntity.setAwayTeam(game.getAway_team());
             gameEntity.setSportKey(game.getSport_key());
+            gameEntity.setCommenceTime(game.getCommence_time());
 
             List<BookmakerEntity> bookmakerEntities = new ArrayList<>();
             for (Bookmaker bookmaker : game.getBookmakers()) {

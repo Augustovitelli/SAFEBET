@@ -12,6 +12,12 @@ import com.Augusto.oddsapi.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import org.springframework.scheduling.annotation.Scheduled;
+import java.time.OffsetDateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +33,7 @@ public class ResultService {
     private final BetSelectionRepository betSelectionRepository;
     private final BetRepository betRepository;
     private final UserRepository userRepository;
+    private final Logger log = LoggerFactory.getLogger(ResultService.class);
 
     public ResultService(WorldCup26Service worldCup26Service,
                          GameRepository gameRepository,
@@ -166,4 +173,27 @@ public class ResultService {
         if (a.equals(b)) return true;
         return a.contains(b) || b.contains(a);
     }
+
+    @Scheduled(fixedDelay = 600000) // roda a cada 10 minutos
+    public void resolverApostasAutomaticamente() {
+        List<GameEntity> jogosPassados = gameRepository
+                .findByCommenceTimeBeforeAndFootballDataIdNotNull(OffsetDateTime.now());
+
+        for (GameEntity game : jogosPassados) {
+            List<BetSelectionEntity> abertas = betSelectionRepository
+                    .findOpenByGameFootballDataId(game.getFootballDataId());
+
+            if (abertas.isEmpty()) continue;
+
+            try {
+                resolveMatch(game.getFootballDataId());
+                log.info("Apostas resolvidas: {} vs {}", game.getHomeTeam(), game.getAwayTeam());
+            } catch (IllegalStateException e) {
+                log.info("Jogo ainda não finalizado: {} vs {}", game.getHomeTeam(), game.getAwayTeam());
+            } catch (Exception e) {
+                log.error("Erro ao resolver {} vs {}: {}", game.getHomeTeam(), game.getAwayTeam(), e.getMessage());
+            }
+        }
+    }
+
 }
