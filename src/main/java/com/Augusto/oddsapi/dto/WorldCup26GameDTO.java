@@ -10,12 +10,12 @@ public class WorldCup26GameDTO {
     private String id;
 
     @JsonProperty("home_score")
-    private String homeScore;
+    private Object homeScore;
 
     @JsonProperty("away_score")
-    private String awayScore;
+    private Object awayScore;
 
-    private String finished;
+    private Object finished;
 
     @JsonProperty("home_team_name_en")
     private String homeTeamNameEn;
@@ -26,14 +26,14 @@ public class WorldCup26GameDTO {
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
-    public String getHomeScore() { return homeScore; }
-    public void setHomeScore(String homeScore) { this.homeScore = homeScore; }
+    public String getHomeScore() { return homeScore != null ? homeScore.toString() : null; }
+    public void setHomeScore(Object homeScore) { this.homeScore = homeScore; }
 
-    public String getAwayScore() { return awayScore; }
-    public void setAwayScore(String awayScore) { this.awayScore = awayScore; }
+    public String getAwayScore() { return awayScore != null ? awayScore.toString() : null; }
+    public void setAwayScore(Object awayScore) { this.awayScore = awayScore; }
 
-    public String getFinished() { return finished; }
-    public void setFinished(String finished) { this.finished = finished; }
+    public String getFinished() { return finished != null ? finished.toString() : null; }
+    public void setFinished(Object finished) { this.finished = finished; }
 
     public String getHomeTeamNameEn() { return homeTeamNameEn; }
     public void setHomeTeamNameEn(String homeTeamNameEn) { this.homeTeamNameEn = homeTeamNameEn; }

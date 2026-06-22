@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface BetSelectionRepository extends JpaRepository<BetSelectionEntity, Long> {
 
-    @Query("SELECT s FROM BetSelectionEntity s WHERE s.game.footballDataId = :footballDataId AND s.bet.status = 'OPEN'")
+    @Query("SELECT s FROM BetSelectionEntity s WHERE s.game.footballDataId = :footballDataId AND s.bet.status = 'OPEN' AND (s.result IS NULL OR s.result = 'OPEN')")
     List<BetSelectionEntity> findOpenByGameFootballDataId(@Param("footballDataId") String footballDataId);
 }

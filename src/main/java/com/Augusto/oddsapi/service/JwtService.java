@@ -2,8 +2,8 @@ package com.Augusto.oddsapi.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -12,7 +12,12 @@ import java.util.Date;
 @Service
 public class JwtService {
 
-    private final Key chave = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    @Value("${jwt.secret}")
+    private String secret;
+
+    private Key getChave() {
+        return Keys.hmacShaKeyFor(secret.getBytes());
+    }
     private final long EXPIRACAO = 1000 * 60 * 60 * 24; // 24 horas
 
     public String gerarToken(String email, Long userId) {
@@ -21,7 +26,7 @@ public class JwtService {
                 .claim("userId", userId)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRACAO))
-                .signWith(chave)
+                .signWith(getChave())
                 .compact();
     }
 
@@ -44,7 +49,7 @@ public class JwtService {
 
     private Claims extrairClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(chave)
+                .setSigningKey(getChave())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
