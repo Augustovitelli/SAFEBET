@@ -23,7 +23,12 @@ public class UserService {
     public void cadastrar(UserRequestDTO dto) {
         UserEntity user = new UserEntity();
         user.setUserName(dto.getUserName());
-        user.setEmail(dto.getEmail());
+        UserEntity existingUser = userRepository.findByEmail(dto.getEmail());
+        if (existingUser != null) {
+            throw new IllegalArgumentException("Email já cadastrado");
+        }else {
+            user.setEmail(dto.getEmail());
+        }
         user.setSenha(passwordEncoder.encode(dto.getSenha()));
         user.setSaldo(new BigDecimal("1000.00"));
 

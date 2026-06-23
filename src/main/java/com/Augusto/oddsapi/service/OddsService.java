@@ -104,7 +104,7 @@ public class OddsService {
     }
 
     private List<GameResponseDTO> buscarDoBanco() {
-        List<GameEntity> entities = gameRepository.findByCommenceTimeAfter(OffsetDateTime.now());
+        List<GameEntity> entities = gameRepository.findByCommenceTimeAfter(OffsetDateTime.now().minusMinutes(90));
         List<GameResponseDTO> games = new ArrayList<>();
 
         for (GameEntity gameEntity : entities) {

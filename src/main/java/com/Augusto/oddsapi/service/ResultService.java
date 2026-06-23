@@ -200,7 +200,7 @@ public class ResultService {
         return a.contains(b) || b.contains(a);
     }
 
-    @Scheduled(fixedDelay = 5000) // roda a cada 5 minutos
+    @Scheduled(fixedDelay = 50000000) // roda a cada 5 minutos
     @Transactional
     public void resolverApostasAutomaticamente() {
         List<WorldCup26GameDTO> apiGames;
